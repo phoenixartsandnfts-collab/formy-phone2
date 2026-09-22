@@ -21,11 +21,9 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      -       - name: Install Android SDK
+      - name: Install Android SDK
         run: |
           yes | sdkmanager --licenses
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
-        run: |
           sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Set up Gradle
@@ -41,4 +39,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: phone2-formy-controller
-          path: extracted/phone2_real_formy_chrome/app/build/outputs/apk/debug/app-debug.apk
+          path: extracted/phone2_real_formy_chrome/app/build/outputs/apk/debug/*.apk
