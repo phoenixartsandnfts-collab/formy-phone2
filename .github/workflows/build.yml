@@ -10,5 +10,40 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Test
-        run: echo "Workflow YAML is working"
+      - name: Unpack Android project
+        run: |
+          unzip -q phone2_real_formy_chrome_ready_to_build.zip -d extracted
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Build APK
+        run: |
+          PROJECT_DIR=$(dirname "$(find extracted -name settings.gradle -o -name settings.gradle.kts | head -1)")
+          echo "Project: $PROJECT_DIR"
+          cd "$PROJECT_DIR"
+
+          if [ -f gradlew ]; then
+            chmod +x gradlew
+            ./gradlew assembleDebug --no-daemon
+          else
+            gradle assembleDebug --no-daemon
+          fi
+
+          APK=$(find . -path "*/build/outputs/apk/debug/*.apk" -type f | head -1)
+          echo "APK: $APK"
+          cp "$APK" "$GITHUB_WORKSPACE/phone2-formy.apk"
+
+      - name: Save APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: phone2-formy-controller
+          path: phone2-formy.apk
